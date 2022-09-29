@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ExampleWasTaken-Studios/updater/issues"
   },
-  "homepage": "https://github.com/ExampleWasTaken-Studios/updater#readme"
+  "homepage": "https://github.com/ExampleWasTaken-Studios/updater#readme",
+  "dependencies": {
+    "octokit": "^2.0.7"
+  }
 }
