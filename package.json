@@ -1,0 +1,19 @@
+{
+  "name": "@ewt-studios/updater",
+  "version": "1.0.0",
+  "description": "Updater used to update EWT-Studios apps.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ExampleWasTaken-Studios/updater.git"
+  },
+  "author": "ExampleWasTaken Studios",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ExampleWasTaken-Studios/updater/issues"
+  },
+  "homepage": "https://github.com/ExampleWasTaken-Studios/updater#readme"
+}
