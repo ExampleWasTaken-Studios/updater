@@ -6,7 +6,7 @@
   ],
   "extends":[
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "env": {
     "node": true,
@@ -18,7 +18,7 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "eol-last": ["error", "always"],
-    "no-trailing-spaces": "error",
+    "no-trailing-spaces": ["error", { "ignoreComments": true }],
     "semi": ["error", "always"],
     "quotes": ["error", "double", { "allowTemplateLiterals": true }],
     "no-debugger": "off",
