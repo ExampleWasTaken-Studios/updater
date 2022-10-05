@@ -59,12 +59,10 @@ abstract class EventEmitter {
    */
   public on(event: UpdateEvent, handler: ListenerHandler) {
     this.listeners.push(new Listener(event, handler));
-    console.log("listeners", this.listeners);
   }
 
   public removeListeners(event: UpdateEvent) {
     this.listeners = this.listeners.filter(current => current.event !== event);
-    console.log(this.listeners);
   }
 
   /**
