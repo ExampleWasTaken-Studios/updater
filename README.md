@@ -8,7 +8,7 @@ npm i @ewt-studios/updater
 
 ## Behavior
 ### macOS
-This package provides auto updates for unsigned macOS applications. Once an update has been found, it is downloaded and the user is notified through a native notification. Along with the option to quit and install.
+This package provides auto updates for unsigned macOS applications. Once an update has been found, it is downloaded and the user is notified through a native notification along with the option to quit and install.
 
 ### Windows
 On Windows we use the default [electron-updater](https://www.npmjs.com/package/electron-updater) package and call `autoUpdater.checkForUpdatesAndNotify()`. The option to quit and install through the notification might be added later.
@@ -16,7 +16,7 @@ On Windows we use the default [electron-updater](https://www.npmjs.com/package/e
 ## Usage
 The package is 100% inline-documented.
 ```ts
-import { app, shell } from "electron";
+import { app } from "electron";
 import { Updater } from "@ewt-studios/updater";
 
 app.on("ready", async () => {
