@@ -8,32 +8,27 @@ npm i @ewt-studios/updater
 
 ## Behavior
 ### macOS
-This package provides auto updates for unsigned macOS applications. For now it only downloads the update into the users `Downloads` folder. Listen for the `download-complete` event to know when the download is complete.
+This package provides auto updates for unsigned macOS applications. Once an update has been found, it is downloaded and the user is notified through a native notification. Along with the option to quit and install.
 
 ### Windows
-On Windows this package uses the default [electron-updater](https://www.npmjs.com/package/electron-updater) package and calls `autoUpdater.checkForUpdatesAndNotify()`.
+On Windows we use the default [electron-updater](https://www.npmjs.com/package/electron-updater) package and call `autoUpdater.checkForUpdatesAndNotify()`. The option to quit and install through the notification might be added later.
 
 ## Usage
-The package is completely fully inline-documented.
+The package is 100% inline-documented.
 ```ts
 import { app, shell } from "electron";
 import { Updater } from "@ewt-studios/updater";
 
-app.on("ready", () => {
+app.on("ready", async () => {
   const updater = new Updater(app, "<repo_owner_name>", "<repo_name>");
 
-  updater.on("download-complete", () => {
-    // the code to be executed whenever the 'download-complete' event fires
-  });
-
-  updater.removeListeners("download-complete");
-
-  shell.openPath((await updater.checkForUpdatesAndDownload()).pathToUpdate);
+  updater.checkForUpdatesAndDownload()
 });
 ```
 ### Events
-Just like [electron-updater](https://www.npmjs.com/package/electron-updater), updater is event based.  
-> These events are only fired on macOS as electron-updater's `.checkForUpdatesAndNotify()` is used on Windows.
+> These events are only fired on macOS. Use electron-updater events on Windows.
+
+Updater provides events to inform about different states during update handling.
   
 We provide the following events:
 - `checking-for-update`
@@ -60,7 +55,7 @@ npm test # => tsc && electron .
 ```
 For testing purposes electron is included in this project. To use it you need to change the `main` property in `package.json` to `electron/main.js`. To adhere to npm package guidelines this should always be changed back to `lib/index.js` before pushing.
 
-Electron is not included in the npm package.
+Electron is not included in the published npm package.
 
 ## Build
 ```sh
