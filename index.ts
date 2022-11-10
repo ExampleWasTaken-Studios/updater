@@ -32,18 +32,7 @@ interface ReturnData {
   pathToUpdate: string;
 }
 
-const updateNotification = new Notification({
-  title: "Update available!",
-  body: `A new version has been downloaded and is ready to install.`,
-  silent: true,
-  timeoutType: "never",
-  actions: [
-    {
-      type: "button",
-      text: "Quit and Install"
-    }
-  ]
-});
+let updateNotification: Notification;
 
 /**
  * Represents a listener that listens to a {@link UpdateEvent} and provides a {@link ListenerHandler} function that is execute whenever the even is fired.
@@ -139,6 +128,21 @@ export class Updater extends EventEmitter {
     this.repoOwner = repoOwner;
     this.repoName = repoName;
     this.allowPrereleases = allowPrereleases;
+
+    this.app.on("ready", () => {
+      updateNotification = new Notification({
+        title: "Update available!",
+        body: `A new version has been downloaded and is ready to install.`,
+        silent: true,
+        timeoutType: "never",
+        actions: [
+          {
+            type: "button",
+            text: "Quit and Install"
+          }
+        ]
+      });
+    });
   }
 
   /**
