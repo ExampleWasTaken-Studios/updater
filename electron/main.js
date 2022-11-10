@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const app = require("electron").app;
+const Notification = require("electron").Notification;
+const { shell } = require("electron");
 const { Updater } = require("../lib/index");
 
 const log = console.log;
@@ -7,7 +9,7 @@ const log = console.log;
 const REPO_OWNER = "";
 const REPO_NAME = "";
 
-app.on("ready", () => {
+app.on("ready", async () => {
   log("[electron] 'ready' event fired");
   const updater = new Updater(app, REPO_OWNER, REPO_NAME);
 
@@ -18,5 +20,5 @@ app.on("ready", () => {
   updater.on("update-not-available", () => log("update not available"));
   updater.on("error", (error) => log("an error occured:", error));
 
-  updater.checkForUpdates();
+  updater.checkForUpdatesAndDownload();
 });

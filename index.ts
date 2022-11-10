@@ -1,8 +1,9 @@
 import { request } from "@octokit/request";
+import download from "download";
+import { Notification, shell } from "electron";
+import { autoUpdater } from "electron-updater";
 import fs from "fs";
 import semver from "semver";
-import download from "download";
-import { autoUpdater } from "electron-updater";
 
 type UpdateEvent = "checking-for-update" | "update-available" | "update-not-available" | "download-in-progress" | "download-complete" | "error";
 
@@ -25,6 +26,24 @@ interface ReleaseAsset {
   size: number;
   browser_download_url: string;
 }
+
+interface ReturnData {
+  release: Release;
+  pathToUpdate: string;
+}
+
+const updateNotification = new Notification({
+  title: "Update available!",
+  body: `A new version has been downloaded and is ready to install.`,
+  silent: true,
+  timeoutType: "never",
+  actions: [
+    {
+      type: "button",
+      text: "Quit and Install"
+    }
+  ]
+});
 
 /**
  * Represents a listener that listens to a {@link UpdateEvent} and provides a {@link ListenerHandler} function that is execute whenever the even is fired.
@@ -126,10 +145,10 @@ export class Updater extends EventEmitter {
    * Check if updates are available and download them.  
    * 
    * For Windows, this class utilizes [electron-updater](https://www.npmjs.com/package/electron-updater).  
-   * On macOS, it downloads the new .dmg to the users download folder as auto updates via [electron-updater](https://www.npmjs.com/package/electron-updater) require applications to be signed.
+   * On macOS, it downloads the new .dmg to appData and sends a notification informing the user that a new update can be installed.
    * @returns `Promise<void>`
    */
-  public async checkForUpdates(): Promise<void> {
+  public async checkForUpdatesAndDownload(): Promise<ReturnData> {
     if (process.platform === "darwin") {
       const response = await request("GET /repos/{owner}/{repo}/releases", {
         owner: this.repoOwner,
@@ -142,28 +161,78 @@ export class Updater extends EventEmitter {
         if (this.isValidVersion(currentRelease.tag_name)) {
           for (const currentAsset of currentRelease.assets) {
             if (/\.dmg$/.test(currentAsset.name)) {
-              await this.downloadAsset(currentAsset);
-              return;
+              const path = await this.downloadAsset(currentAsset);
+
+              updateNotification.on("action", (_event, index) => {
+                if (index === 0) {
+                  shell.openPath(path);
+                  updateNotification.removeAllListeners();
+                  this.app.quit();
+                }
+              });
+
+              updateNotification.show();
+
+              return {
+                release: currentRelease,
+                pathToUpdate: path
+              };
             }
             continue;
           }
           this.fire("error", new Error("Cannot find suitable asset."));
-          return;
+          throw new Error("Cannot find suitable asset");
         }
         continue;
       }
       this.fire("update-not-available");
     } else if (process.platform === "win32") {
+      autoUpdater.on("update-downloaded", () => {
+        updateNotification.on("action", (_event, index) => {
+          if (index === 0) {
+            autoUpdater.quitAndInstall();
+          }
+        });
+        updateNotification.show();
+      });
       autoUpdater.checkForUpdatesAndNotify();
     }
+    throw new Error("Invalid platform");
   }
 
-  private async downloadAsset(asset: ReleaseAsset): Promise<void> {
+  private async downloadAsset(asset: ReleaseAsset): Promise<string> {
+    const downloadDir = `${this.app.getPath("appData")}/updater/`;
+
+    if (!fs.existsSync(downloadDir)) {
+      await fs.mkdir(downloadDir, err => {
+        throw err;
+      });
+    }
+
+    // Delete all files that end in '.dmg' from dir
+    fs.readdir(downloadDir, { encoding: "utf-8" }, (err, files) => {
+      if (err) {
+        throw err;
+      }
+      const filesToDelete = files.map(current => {
+        if (/\.dmg$/.test(current)) {
+          return current;
+        }
+      });
+      filesToDelete.forEach(current => {
+        fs.rm(`${downloadDir}/${current}`, err => {
+          throw err;
+        });
+      });
+    });
+
     this.fire("download-in-progress");
-    const path = `${this.app.getPath("downloads")}/${asset.name}`;
-    console.log(path);
+    const path = `${downloadDir}${asset.name}`;
+
     fs.writeFileSync(path, await download(asset.browser_download_url));
+
     this.fire("download-complete");
+    return path;
   }
 
   private isValidVersion(version: string): boolean {

@@ -16,7 +16,7 @@ On Windows this package uses the default [electron-updater](https://www.npmjs.co
 ## Usage
 The package is completely fully inline-documented.
 ```ts
-import { app } from "electron";
+import { app, shell } from "electron";
 import { Updater } from "@ewt-studios/updater";
 
 app.on("ready", () => {
@@ -28,7 +28,7 @@ app.on("ready", () => {
 
   updater.removeListeners("download-complete");
 
-  updater.checkForUpdates();
+  shell.openPath((await updater.checkForUpdatesAndDownload()).pathToUpdate);
 });
 ```
 ### Events
