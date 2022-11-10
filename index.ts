@@ -187,14 +187,6 @@ export class Updater extends EventEmitter {
       }
       this.fire("update-not-available");
     } else if (process.platform === "win32") {
-      autoUpdater.on("update-downloaded", () => {
-        updateNotification.on("action", (_event, index) => {
-          if (index === 0) {
-            autoUpdater.quitAndInstall();
-          }
-        });
-        updateNotification.show();
-      });
       autoUpdater.checkForUpdatesAndNotify();
     }
     throw new Error("Invalid platform");
