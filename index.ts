@@ -1,8 +1,8 @@
 import { request } from "@octokit/request";
-import download from "download";
-import { Notification, shell } from "electron";
+import { Notification } from "electron";
 import { autoUpdater } from "electron-updater";
 import fs from "fs";
+import fetch from "node-fetch";
 import semver from "semver";
 
 type UpdateEvent = "checking-for-update" | "update-available" | "update-not-available" | "download-in-progress" | "download-complete" | "error";
@@ -167,7 +167,8 @@ export class Updater extends EventEmitter {
             if (/\.dmg$/.test(currentAsset.name)) {
               const path = await this.downloadAsset(currentAsset);
 
-              updateNotification.on("action", (_event, index) => {
+              // TODO: remove comment
+              /* updateNotification.on("action", (_event, index) => {
                 if (index === 0) {
                   shell.openPath(path);
                   updateNotification.removeAllListeners();
@@ -175,7 +176,7 @@ export class Updater extends EventEmitter {
                 }
               });
 
-              updateNotification.show();
+              updateNotification.show(); */
 
               return {
                 release: currentRelease,
@@ -206,26 +207,30 @@ export class Updater extends EventEmitter {
     }
 
     // Delete all files that end in '.dmg' from dir
-    fs.readdir(downloadDir, { encoding: "utf-8" }, (err, files) => {
-      if (err) {
-        throw err;
+    const dirContents = fs.readdirSync(downloadDir);
+    console.log("dirContents:", dirContents);
+    for (const i of dirContents) {
+      const filesToDelete: string[] = [];
+
+      if (/\.dmg$/.test(i)) {
+        filesToDelete.push(i);
       }
-      const filesToDelete = files.map(current => {
-        if (/\.dmg$/.test(current)) {
-          return current;
-        }
-      });
-      filesToDelete.forEach(current => {
-        fs.rm(`${downloadDir}/${current}`, err => {
-          throw err;
-        });
-      });
-    });
+
+      console.log("filesToDelete:", filesToDelete);
+
+      console.log("deleting files");
+      for (const ii of filesToDelete) {
+        fs.rmSync(`${downloadDir}${ii}`, { force: true });
+      }
+    }
 
     this.fire("download-in-progress");
     const path = `${downloadDir}${asset.name}`;
 
-    fs.writeFileSync(path, await download(asset.browser_download_url));
+    const response = await fetch(asset.browser_download_url);
+    const buffer = await response.arrayBuffer();
+
+    fs.writeFileSync(path, Buffer.from(buffer));
 
     this.fire("download-complete");
     return path;
