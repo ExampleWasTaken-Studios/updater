@@ -1,6 +1,9 @@
 # updater
 Updater is used by EWT Studios to update our electron desktop apps.
 
+## Important
+The latest version (v2.0.5) includes important security fixes! Please use `npm i @ewt-studios/updater@latest` to install it.
+
 ## Install
 ```sh
 npm i @ewt-studios/updater
