@@ -1,5 +1,5 @@
 import { request } from "@octokit/request";
-import { Notification } from "electron";
+import { Notification, shell } from "electron";
 import { autoUpdater } from "electron-updater";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -129,20 +129,20 @@ export class Updater extends EventEmitter {
     this.repoName = repoName;
     this.allowPrereleases = allowPrereleases;
 
-    this.app.on("ready", () => {
-      updateNotification = new Notification({
-        title: "Update available!",
-        body: `A new version has been downloaded and is ready to install.`,
-        silent: true,
-        timeoutType: "never",
-        actions: [
-          {
-            type: "button",
-            text: "Quit and Install"
-          }
-        ]
-      });
+    updateNotification = new Notification({
+      title: "Update available!",
+      body: `A new version has been downloaded and is ready to install.`,
+      silent: true,
+      timeoutType: "never",
+      actions: [
+        {
+          type: "button",
+          text: "Quit and Install"
+        }
+      ]
     });
+
+    updateNotification.show();
   }
 
   /**
@@ -167,16 +167,13 @@ export class Updater extends EventEmitter {
             if (/\.dmg$/.test(currentAsset.name)) {
               const path = await this.downloadAsset(currentAsset);
 
-              // TODO: remove comment
-              /* updateNotification.on("action", (_event, index) => {
+              updateNotification.on("action", (_event, index) => {
                 if (index === 0) {
                   shell.openPath(path);
                   updateNotification.removeAllListeners();
                   this.app.quit();
                 }
               });
-
-              updateNotification.show(); */
 
               return {
                 release: currentRelease,

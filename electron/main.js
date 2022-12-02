@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const app = require("electron").app;
-const Notification = require("electron").Notification;
-const { shell } = require("electron");
 const { Updater } = require("../lib/index");
 
 const log = console.log;
