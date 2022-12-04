@@ -141,8 +141,6 @@ export class Updater extends EventEmitter {
         }
       ]
     });
-
-    updateNotification.show();
   }
 
   /**
