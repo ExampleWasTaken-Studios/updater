@@ -227,6 +227,8 @@ export class Updater extends EventEmitter {
 
     fs.writeFileSync(path, Buffer.from(buffer));
 
+    updateNotification.show();
+
     this.fire("download-complete");
     return path;
   }
